@@ -2,6 +2,9 @@ import http from "http";
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
+import fs from 'fs'
+import { format } from "date-fns";
+
 
 //configure the dotenv package
 dotenv.config();
@@ -16,7 +19,7 @@ app.use(cors());
 
 //create port to run the server
 
-const port = process.env.PORT;
+const port = process.env.PORT || 4000;
 
 //Default route to avoid cannot get
 app.get("/", (req, res) => {
@@ -35,6 +38,28 @@ http.createServer((req,res)=>{
     console.log(`server started and running on port ${port}`);
 })
 */
+
+//Api to access the filesystem and perform operations
+
+app.get("/file",(req,res)=>{
+
+  let today = format(new Date(),"dd-MM-yyyy-HH-mm-ss");
+  //console.log(today);
+  const filepath = `TimeStamps/${today}`;
+  fs.writeFileSync(filepath,`${today}`,"utf-8")
+  let data = fs.readFileSync(filepath,"utf-8")
+  try {
+    res.status(200).send(data);
+  } catch (error) {
+    res.status(503).json({message:"Failed to create a file"})
+  }
+
+})
+
+
+
+
+
 app.listen(port, () => {
   console.log("server started");
 });
